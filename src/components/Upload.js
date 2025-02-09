@@ -1,0 +1,247 @@
+import React, { useState, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import styled from "styled-components";
+import { X, FileText, Archive } from "lucide-react"; // Importing File Icons
+import Footer from "./Footer";
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 90vh;
+  gap: 100px;
+`;
+
+const Heading = styled.h1`
+  font-size: 70px;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  margin-top: -50px;
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 50px;
+  margin-top: -20px;
+`;
+
+const FileUploadContainer = styled.div`
+  width: 450px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const FileUploadBox = styled.div`
+  border: 3px dashed #b8bcbf;
+  border-radius: 15px;
+  padding: 40px;
+  text-align: center;
+  background-color: rgba(9, 9, 9, 0.963);
+  transition: background-color 0.3s ease-in-out;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+
+  &.dragover {
+    background-color: #007bff;
+    color: white;
+  }
+`;
+
+const PreviewWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+`;
+
+const PreviewFileContainer = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+`;
+
+const RemoveButton = styled.button`
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: red;
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.2s ease-in-out;
+
+  &:hover {
+    background: white;
+    color: red;
+  }
+`;
+
+const PreviewImage = styled.img`
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid #007bff;
+`;
+
+const CsvFileIcon = styled(FileText)`
+  width: 60px;
+  height: 60px;
+  color: #007bff;
+`;
+
+const ZipFileIcon = styled(Archive)`
+  width: 60px;
+  height: 60px;
+  color: #ff9800;
+`;
+
+const UploadButton = styled.button`
+  background-color: #007bff;
+  color: white;
+  padding: 12px 30px;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  margin-top: 15px;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+`;
+
+const Upload = () => {
+  const [files, setFiles] = useState([]);
+  const [error, setError] = useState("");
+
+  const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
+    if (rejectedFiles.length > 0) {
+      setError("Only .csv, .jpg, .jpeg, .png, .zip, and .rar files are allowed!");
+      return;
+    }
+
+    setError(""); // Clear any previous errors
+
+    const newFiles = acceptedFiles.map(file =>
+      Object.assign(file, { preview: file.type.startsWith("image") ? URL.createObjectURL(file) : null })
+    );
+    setFiles(prevFiles => [...prevFiles, ...newFiles]);
+  }, []);
+
+  const removeFile = (index) => {
+    const newFiles = [...files];
+    newFiles.splice(index, 1);
+    setFiles(newFiles);
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "image/jpeg": [],
+      "image/png": [],
+      "text/csv": [],
+      "application/zip": [],
+      "application/x-zip-compressed": [], // Additional zip MIME type
+      "application/x-rar-compressed": [],
+      "application/vnd.rar": [],
+      "application/octet-stream": [], // Some systems use this for zip/rar
+    }
+    
+  });
+
+  const uploadFiles = async () => {
+    if (files.length === 0) {
+      alert("No files selected!");
+      return;
+    }
+
+    const formData = new FormData();
+    files.forEach(file => formData.append("files", file));
+
+    try {
+      const response = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        alert("Files uploaded successfully");
+        setFiles([]); // Clear uploaded files after success
+      } else {
+        console.error("Upload failed");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+    }
+  };
+
+  return (
+    <Container>
+      <Heading>Upload Files</Heading>
+
+      <ContentWrapper>
+        <FileUploadContainer>
+          <FileUploadBox {...getRootProps()} className={isDragActive ? "dragover" : ""}>
+            <input {...getInputProps()} />
+            <p>Drag & Drop your files here or click to upload</p>
+            <span className="text-danger">(*Only .csv, .jpg, .jpeg, .png, .zip, .rar accepted)</span>
+          </FileUploadBox>
+
+          {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+
+          <UploadButton onClick={uploadFiles}>Upload</UploadButton>
+        </FileUploadContainer>
+
+        {files.length > 0 && (
+          <PreviewWrapper>
+            {files.map((file, index) => (
+              <PreviewFileContainer key={index}>
+                <RemoveButton onClick={() => removeFile(index)}>
+                  <X size={14} />
+                </RemoveButton>
+                {file.preview ? (
+                  <PreviewImage src={file.preview} alt="preview" />
+                ) : file.name.endsWith(".csv") ? (
+                  <>
+                    <CsvFileIcon />
+                    <p style={{ color: "white", fontSize: "14px", marginTop: "5px" }}>
+                      {file.name}
+                    </p>
+                  </>
+                ) : file.name.endsWith(".zip") || file.name.endsWith(".rar") ? (
+                  <>
+                    <ZipFileIcon />
+                    <p style={{ color: "white", fontSize: "14px", marginTop: "5px" }}>
+                      {file.name}
+                    </p>
+                  </>
+                ) : null}
+              </PreviewFileContainer>
+            ))}
+          </PreviewWrapper>
+        )}
+      </ContentWrapper>
+      <Footer/>
+    </Container>
+    
+  );
+};
+
+export default Upload;
