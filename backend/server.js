@@ -26,8 +26,9 @@ mongoose
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
 app.get("/", (req, res) => {
-  res.send("Hi");
+  res.send("Backend is running!");
 });
+
+// Export the Express app (important for Vercel)
+module.exports = app;
