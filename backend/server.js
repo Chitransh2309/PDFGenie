@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
 const uploadRoutes = require("./Routes/Upload");
+const { render } = require("@testing-library/react");
 
 const app = express();
 
@@ -26,3 +27,7 @@ mongoose
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+app.get("/", (req, res) => {
+  res.send("Hi");
+});
