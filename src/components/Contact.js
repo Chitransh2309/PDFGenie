@@ -24,7 +24,7 @@ const Contact = () => {
 const StyledWrapper = styled.div`
   .form-container {
   margin-top: 100px;
-  margin-left: 50%;
+  margin-left: 36%;
     width: 400px;
     background: linear-gradient(#212121, #212121) padding-box,
                 linear-gradient(145deg, transparent 35%,#e81cff, #40c9ff) border-box;
