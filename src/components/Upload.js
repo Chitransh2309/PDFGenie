@@ -176,7 +176,7 @@ const Upload = () => {
     files.forEach(file => formData.append("files", file));
 
     try {
-      const response = await fetch("https://backend-4q3t.onrender.com//upload", {
+      const response = await fetch("https://yantra-central-hack.onrender.com/upload", {
         method: "POST",
         body: formData,
       });

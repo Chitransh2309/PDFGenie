@@ -8,7 +8,14 @@ const uploadRoutes = require("./Routes/Upload");
 const app = express();
 
 // Middleware
-app.use(cors());
+const cors = require("cors");
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:3000", // Frontend URL
+  methods: ["GET", "POST"],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // Serve static files
