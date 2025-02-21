@@ -48,7 +48,7 @@ router.post("/", upload.array("files", 10), async (req, res) => {
 
     // Store file data in MongoDB
     const uploadedFiles = req.files.map(file => {
-      const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
+      const fileUrl = `${req.protocol}://${req.get("host")}/${file.filename}`;
       return { filename: file.filename, fileType: file.mimetype, fileUrl};
     });
 
