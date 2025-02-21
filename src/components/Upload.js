@@ -176,7 +176,7 @@ const Upload = () => {
     files.forEach(file => formData.append("files", file));
 
     try {
-      const response = await fetch("https://yantra-central-hack-backend.vercel.app/upload", {
+      const response = await fetch("http://localhost:3000/upload", {
         method: "POST",
         body: formData,
       });
