@@ -2,7 +2,6 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const File = require("../models/File");
-const fs = require("fs");
 const router = express.Router();
 
 // Storage Configuration
@@ -49,9 +48,8 @@ router.post("/", upload.array("files", 10), async (req, res) => {
 
     // Store file data in MongoDB
     const uploadedFiles = req.files.map(file => {
-      const fileData = fs.readFileSync(file.path, { encoding: 'base64' });
       const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
-      return { filename: file.filename, fileType: file.mimetype, fileUrl,fileData};
+      return { filename: file.filename, fileType: file.mimetype, fileUrl};
     });
 
     // Save all files to MongoDB
