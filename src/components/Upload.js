@@ -133,7 +133,7 @@ const Upload = () => {
 
   const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
     if (rejectedFiles.length > 0) {
-      setError("Only .csv, .jpg, .jpeg, .png, .zip, and .rar files are allowed!");
+      setError("Only .pdf files are allowed!");
       return;
     }
 
@@ -154,14 +154,7 @@ const Upload = () => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/jpeg": [],
-      "image/png": [],
-      "text/csv": [],
-      "application/zip": [],
-      "application/x-zip-compressed": [], // Additional zip MIME type
-      "application/x-rar-compressed": [],
-      "application/vnd.rar": [],
-      "application/octet-stream": [], // Some systems use this for zip/rar
+      "application/pdf": []
     }
     
   });
@@ -201,7 +194,7 @@ const Upload = () => {
           <FileUploadBox {...getRootProps()} className={isDragActive ? "dragover" : ""}>
             <input {...getInputProps()} />
             <p>Drag & Drop your files here or click to upload</p>
-            <span className="text-danger">(*Only .csv, .jpg, .jpeg, .png, .zip, .rar accepted)</span>
+            <span className="text-danger">(*Only .pdf accepted)</span>
           </FileUploadBox>
 
           {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
@@ -218,7 +211,7 @@ const Upload = () => {
                 </RemoveButton>
                 {file.preview ? (
                   <PreviewImage src={file.preview} alt="preview" />
-                ) : file.name.endsWith(".csv") ? (
+                ) : file.name.endsWith(".pdf") ? (
                   <>
                     <CsvFileIcon />
                     <p style={{ color: "white", fontSize: "14px", marginTop: "5px" }}>
