@@ -3,6 +3,7 @@ const multer = require("multer");
 const path = require("path");
 const File = require("../models/File");
 const router = express.Router();
+var convertapi = require('convertapi')('secret_JDL3V9MsHsRoDUAR');
 
 // Storage Configuration
 const storage = multer.diskStorage({
@@ -15,10 +16,9 @@ const storage = multer.diskStorage({
   }
 });
 
-// File filter (Allow only .csv, .jpg, .jpeg, .png)
 const fileFilter = (req, file, cb) => {
     const allowedTypes = [
-      "application/pdf" // Some systems use this for zip/rar
+      "application/pdf" 
     ];
   
     if (allowedTypes.includes(file.mimetype)) {
@@ -29,6 +29,7 @@ const fileFilter = (req, file, cb) => {
   };
   
 
+  const Files=[];
 // Multer Upload Middleware
 const upload = multer({ storage, fileFilter });
 
@@ -42,6 +43,7 @@ router.post("/", upload.array("files", 10), async (req, res) => {
     // Store file data in MongoDB
     const uploadedFiles = req.files.map(file => {
       const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
+      Files.push(fileUrl);
       return { filename: file.filename, fileType: file.mimetype, fileUrl};
     });
 
@@ -50,7 +52,9 @@ router.post("/", upload.array("files", 10), async (req, res) => {
 
     res.json({ message: "Files uploaded successfully", files: uploadedFiles });
 
-    
+    convertapi.convert('merge', {Files: Files,FileName: 'merged_files'}, 'pdf').then(function(result) {
+      res.download(result.Files.Url);
+    });
 
     const deleteAllFiles = async () => {
       try {
