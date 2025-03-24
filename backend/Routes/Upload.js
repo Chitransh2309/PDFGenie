@@ -49,6 +49,16 @@ router.post("/", upload.array("files", 10), async (req, res) => {
     await File.insertMany(uploadedFiles);
 
     res.json({ message: "Files uploaded successfully", files: uploadedFiles });
+
+    const deleteAllFiles = async () => {
+      try {
+        const result = await File.deleteMany({});
+        console.log(`${result.deletedCount} files deleted.`);
+      } catch (err) {
+        console.error("Error deleting files:", err);
+      }
+    };
+    deleteAllFiles();
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
