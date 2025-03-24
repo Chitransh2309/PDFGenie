@@ -50,6 +50,8 @@ router.post("/", upload.array("files", 10), async (req, res) => {
 
     res.json({ message: "Files uploaded successfully", files: uploadedFiles });
 
+    
+
     const deleteAllFiles = async () => {
       try {
         const result = await File.deleteMany({});

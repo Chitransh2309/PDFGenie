@@ -6,7 +6,7 @@ const Herosection = () => {
   return (
     <div id="heroSec">
       <Button/>
-      <p className='my-5' id='herotext' style={{marginLeft:200}}>Enhance Your ML Model Today</p>
+      <p className='my-5' id='herotext' style={{marginLeft:200}}>Enhance Your ML <br />Model Today</p>
       <Button1/>
     </div>
   );
