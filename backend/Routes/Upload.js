@@ -4,7 +4,7 @@ const path = require("path");
 const File = require("../models/File");
 const router = express.Router();
 var convertapi = require('convertapi')('secret_JDL3V9MsHsRoDUAR');
-
+const open = require('open');
 // Storage Configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -53,7 +53,15 @@ router.post("/", upload.array("files", 10), async (req, res) => {
     res.json({ message: "Files uploaded successfully", files: uploadedFiles });
 
     convertapi.convert('merge', {Files: Files,FileName: 'merged_files'}, 'pdf').then(function(result) {
-      res.download(result.Files.Url);
+      (async () => {
+        try {
+          // Pass the 'new-window' option to open in a new tab/window
+          await open(result.Files[0].Url, { newInstance: true });
+          console.log('URL opened in a new tab:', url);
+        } catch (err) {
+          console.error('Failed to open URL:', err);
+        }
+      })();
     });
 
     const deleteAllFiles = async () => {
