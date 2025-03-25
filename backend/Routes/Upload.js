@@ -69,8 +69,8 @@ router.post("/", upload.array("files", 10), async (req, res) => {
       console.error('Error merging PDFs:', error);
       res.status(500).send('Error merging PDFs');
     }
-
-    //res.json({ message: "Files uploaded successfully", files: uploadedFiles });
+    await File.deleteMany({});
+    res.json({ message: "Files uploaded successfully", files: uploadedFiles });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
