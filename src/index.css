@@ -43,7 +43,7 @@ nav ul li a:hover {
 #herotext{
   font-family: "Alegreya Sans";
   color: white;
-  font-size: 70px;
+  font-size: 75px;
   line-height: 1;
 }
 
@@ -71,7 +71,7 @@ nav ul li a:hover {
 }
 
 .container .box div p {
-  font-size: 29px;
+  font-size: 35px;
 }
 
 .container .box:hover {

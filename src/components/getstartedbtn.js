@@ -6,7 +6,7 @@ const Button1 = () => {
   return (
     <StyledWrapper>
       <Link to='/upload'>
-        <button className="button my-3" style={{marginLeft:210}}>
+        <button className="button my-3" style={{marginLeft:260}}>
             Get Started
         </button>
       </Link>
