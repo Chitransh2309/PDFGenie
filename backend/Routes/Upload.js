@@ -47,34 +47,36 @@ router.post("/", upload.array("files", 10), async (req, res) => {
     // Save all files to MongoDB
     await File.insertMany(uploadedFiles);
 
-    try {
-      // Fetch the PDF URLs from MongoDB
-      const files = await File.find();
-      if (files.length < 2) {
-        return res.status(400).send('At least two PDFs are needed for merging.');
-      }
-      
-      const pdfUrls = files.map(file => file.fileUrl);
-      
-      // Use ConvertAPI to merge PDFs
-      const result = await convertapi.convert('merge', {
-        files: pdfUrls,FileName: 'merged_files'
-      }, 'pdf');
-  
-      const mergedFileUrl = result.file.url;
-      console.log(mergedFileUrl);
-  
-      // Redirect to open the merged PDF in a new tab
-      res.redirect(mergedFileUrl);
-    } catch (error) {
-      console.error('Error merging PDFs:', error);
-      res.status(500).send('Error merging PDFs');
-    }
-    await File.deleteMany({});
     res.json({ message: "Files uploaded successfully", files: uploadedFiles });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+
+
+  try {
+    // Fetch the PDF URLs from MongoDB
+    const files = await File.find();
+    if (files.length < 2) {
+      return res.status(400).send('At least two PDFs are needed for merging.');
+    }
+    
+    const pdfUrls = files.map(file => file.fileUrl);
+    
+    // Use ConvertAPI to merge PDFs
+    const result = await convertapi.convert('merge', {
+      files: pdfUrls,FileName: 'merged_files'
+    }, 'pdf');
+
+    const mergedFileUrl = result.file.url;
+    console.log(mergedFileUrl);
+
+    // Redirect to open the merged PDF in a new tab
+    res.redirect(mergedFileUrl);
+  } catch (error) {
+    console.error('Error merging PDFs:', error);
+    res.status(500).send('Error merging PDFs');
+  }
+  await File.deleteMany({});
 });
 module.exports = router;
