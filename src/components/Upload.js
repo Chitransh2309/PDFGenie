@@ -164,26 +164,32 @@ const Upload = () => {
       alert("No files selected!");
       return;
     }
-
+  
     const formData = new FormData();
     files.forEach(file => formData.append("files", file));
-
+  
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload`, {
         method: "POST",
         body: formData,
       });
-
+  
+      const data = await response.json();
+  
       if (response.ok) {
-        alert("Files uploaded successfully");
-        setFiles([]); // Clear uploaded files after success
+        alert("Files merged successfully!");
+        setFiles([]);
+        
+        // Open the merged file in a new tab
+        window.open(data.mergedFile, "_blank");
       } else {
-        console.error("Upload failed");
+        console.error("Upload failed:", data.error);
       }
     } catch (error) {
       console.error("Upload error:", error);
     }
   };
+  
 
   return (
     <Container>
