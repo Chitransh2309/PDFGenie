@@ -51,6 +51,10 @@ router.post("/", upload.array("files", 10), async (req, res) => {
   }
 });
 
+app.get("/test", (req, res) => {
+  res.send("Test route is working!");
+});
+
 // PDF Merge Route
 router.post("/merge", async (req, res) => {
   try {
