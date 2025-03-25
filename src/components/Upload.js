@@ -177,7 +177,6 @@ const Upload = () => {
       if (response.ok) {
         const data = await response.json();
         const ids = data.files.map((file) => file._id);
-        setUploadedIds(ids);
 
         // Automatically merge after upload
         mergePdfs(ids);
