@@ -3,7 +3,6 @@ const multer = require("multer");
 const path = require("path");
 const File = require("../models/File");
 const router = express.Router();
-var convertapi = require('convertapi')('secret_JDL3V9MsHsRoDUAR');
 // Storage Configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -47,11 +46,10 @@ router.post("/", upload.array("files", 10), async (req, res) => {
     // Save all files to MongoDB
     await File.insertMany(uploadedFiles);
 
-    //res.json({ message: "Files uploaded successfully", files: uploadedFiles });
+    res.json({ message: "Files uploaded successfully", files: uploadedFiles });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-
 });
 module.exports = router;
