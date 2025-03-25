@@ -58,10 +58,11 @@ router.post("/", upload.array("files", 10), async (req, res) => {
       
       // Use ConvertAPI to merge PDFs
       const result = await convertapi.convert('merge', {
-        files: pdfUrls
+        files: pdfUrls,FileName: 'merged_files'
       }, 'pdf');
   
       const mergedFileUrl = result.file.url;
+      console.log(mergedFileUrl);
   
       // Redirect to open the merged PDF in a new tab
       res.redirect(mergedFileUrl);
