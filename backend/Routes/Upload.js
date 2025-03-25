@@ -3,6 +3,7 @@ const multer = require("multer");
 const path = require("path");
 const File = require("../models/File");
 const router = express.Router();
+var convertapi = require('convertapi')('secret_JDL3V9MsHsRoDUAR');
 // Storage Configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -46,7 +47,30 @@ router.post("/", upload.array("files", 10), async (req, res) => {
     // Save all files to MongoDB
     await File.insertMany(uploadedFiles);
 
-    res.json({ message: "Files uploaded successfully", files: uploadedFiles });
+    try {
+      // Fetch the PDF URLs from MongoDB
+      const files = await File.find();
+      if (files.length < 2) {
+        return res.status(400).send('At least two PDFs are needed for merging.');
+      }
+      
+      const pdfUrls = files.map(file => file.fileUrl);
+      
+      // Use ConvertAPI to merge PDFs
+      const result = await convertapi.convert('merge', {
+        files: pdfUrls
+      }, 'pdf');
+  
+      const mergedFileUrl = result.file.url;
+  
+      // Redirect to open the merged PDF in a new tab
+      res.redirect(mergedFileUrl);
+    } catch (error) {
+      console.error('Error merging PDFs:', error);
+      res.status(500).send('Error merging PDFs');
+    }
+
+    //res.json({ message: "Files uploaded successfully", files: uploadedFiles });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
