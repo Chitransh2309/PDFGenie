@@ -175,8 +175,12 @@ const Upload = () => {
       });
 
       if (response.ok) {
-        alert("Files uploaded successfully");
-        setFiles([]); // Clear uploaded files after success
+        const data = await response.json();
+        const ids = data.files.map((file) => file._id);
+        setUploadedIds(ids);
+
+        // Automatically merge after upload
+        mergePdfs(ids);
       } else {
         console.error("Upload failed");
       }
@@ -184,6 +188,25 @@ const Upload = () => {
       console.error("Upload error:", error);
     }
   };
+  const mergePdfs = async (ids) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload/merge`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        window.open(data.mergedFileUrl, "_blank");
+      } else {
+        alert("Failed to merge PDFs.");
+      }
+    } catch (error) {
+      console.error("Merge error:", error);
+    }
+  };
+
 
   return (
     <Container>
