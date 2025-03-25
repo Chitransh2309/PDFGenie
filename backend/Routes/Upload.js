@@ -52,7 +52,7 @@ router.post("/", upload.array("files", 10), async (req, res) => {
 });
 
 // PDF Merge Route
-router.post("/upload/merge", async (req, res) => {
+router.post("/merge", async (req, res) => {
   try {
     const { ids } = req.body;
     if (!ids || ids.length < 2) {
