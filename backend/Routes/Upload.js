@@ -48,7 +48,7 @@ router.post("/", upload.array("files", 10), async (req, res) => {
     // Merge PDFs using ConvertAPI
     const result = await ConvertAPI.convert("merge", { Files: fileUrls }, "pdf");
     const mergedFileUrl = result.file.url;
-
+    const mergedFilename = `merged-${Date.now()}.pdf`;
 
     // Store merged file in database
     const mergedFileDoc = await File.create({
