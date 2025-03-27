@@ -28,36 +28,43 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ storage, fileFilter });
 
 // Upload Route
-router.post("/", upload.array("files", 10), async (req, res) => {
+// router.post("/", upload.array("files", 10), async (req, res) => {
+//   try {
+//     if (!req.files || req.files.length === 0) {
+//       return res.status(400).json({ error: "No files uploaded" });
+//     }
+
+//     // Store file details in MongoDB
+//     const uploadedFiles = req.files.map(file => {
+//       const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
+//       return { filename: file.filename, fileType: file.mimetype, fileUrl };
+//     });
+
+//     // Save files to MongoDB
+//     await File.insertMany(uploadedFiles);
+
+//     res.json({ message: "Files uploaded successfully", files: uploadedFiles });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
+
+router.post("/merge", upload.array("files", 10), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: "No files uploaded" });
     }
 
-    // Store file details in MongoDB
-    const uploadedFiles = req.files.map(file => {
-      const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
-      return { filename: file.filename, fileType: file.mimetype, fileUrl };
-    });
+    const uploadedFiles = req.files.map(file => ({
+      filename: file.filename,
+      fileType: file.mimetype,
+      fileUrl: `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
+    }));
 
-    // Save files to MongoDB
     await File.insertMany(uploadedFiles);
 
-    res.json({ message: "Files uploaded successfully", files: uploadedFiles });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-router.post("/merge", async (req, res) => {
-  try {
-    const files = await File.find({ fileType: "application/pdf" });
-
-    if (files.length < 2) {
-      return res.status(400).json({ error: "At least two PDF files are required to merge." });
-    }
-
-    const fileUrls = files.map(file => file.fileUrl);
+    // Extract URLs
+    const fileUrls = uploadedFiles.map(file => file.fileUrl);
 
     // Merge PDFs using ConvertAPI
     const result = await ConvertAPI.convert("merge", { Files: fileUrls }, "pdf");
@@ -71,18 +78,12 @@ router.post("/merge", async (req, res) => {
     const buffer = await mergedFile.arrayBuffer();
     fs.writeFileSync(mergedFilePath, Buffer.from(buffer));
 
-    // Store merged file in MongoDB
+    // Store merged file in database
     const mergedFileDoc = await File.create({
       filename: mergedFilename,
       fileType: "application/pdf",
       fileUrl: `${req.protocol}://${req.get("host")}/uploads/${mergedFilename}`
     });
-
-    // Delete original files from MongoDB and server
-    for (const file of files) {
-      fs.unlinkSync(path.join(__dirname, "../uploads", file.filename));
-      await File.deleteOne({ _id: file._id });
-    }
 
     res.json({ message: "PDFs merged successfully", mergedFile: mergedFileDoc.fileUrl });
 
@@ -92,15 +93,24 @@ router.post("/merge", async (req, res) => {
 });
 
 
-router.post("/compress", async (req, res) => {
+router.post("/compress", upload.array("files", 10), async (req, res) => {
   try {
-    const file = await File.findOne({ fileType: "application/pdf" });
-
-    if (!file) {
-      return res.status(400).json({ error: "No PDF file available for compression." });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded" });
     }
 
-    const result = await ConvertAPI.convert("compress", { File: file.fileUrl }, "pdf");
+    const uploadedFiles = req.files.map(file => ({
+      filename: file.filename,
+      fileType: file.mimetype,
+      fileUrl: `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
+    }));
+
+    await File.insertMany(uploadedFiles);
+
+    // Extract URLs
+    const fileUrls = uploadedFiles.map(file => file.fileUrl);
+
+    const result = await ConvertAPI.convert("compress", { File: fileUrls }, "pdf");
     const compressedFileUrl = result.file.url;
 
     // Download and Save Compressed File

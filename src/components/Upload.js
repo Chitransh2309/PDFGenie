@@ -110,7 +110,11 @@ const ZipFileIcon = styled(Archive)`
   height: 60px;
   color: #ff9800;
 `;
-
+const ButtonContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  `;
 const UploadButton = styled.button`
   background-color: #007bff;
   color: white;
@@ -159,7 +163,33 @@ const Upload = () => {
     
   });
 
-  const uploadFiles = async () => {
+  // const uploadFiles = async () => {
+  //   if (files.length === 0) {
+  //     alert("No files selected!");
+  //     return;
+  //   }
+  
+  //   const formData = new FormData();
+  //   files.forEach(file => formData.append("files", file));
+  
+  //   try {
+  //     const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload`, {
+  //       method: "POST",
+  //       body: formData,
+  //     });
+  
+  //     if (response.ok) {
+  //       alert("Files uploaded successfully");
+  //        // Clear uploaded files after success
+  //     } else {
+  //       console.error("Upload failed");
+  //     }
+  //   } catch (error) {
+  //     console.error("Upload error:", error);
+  //   }
+  // };
+  
+  const mergeFiles = async () => {
     if (files.length === 0) {
       alert("No files selected!");
       return;
@@ -167,34 +197,17 @@ const Upload = () => {
   
     const formData = new FormData();
     files.forEach(file => formData.append("files", file));
-  
-    try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload`, {
-        method: "POST",
-        body: formData,
-      });
-  
-      if (response.ok) {
-        alert("Files uploaded successfully");
-        setFiles([]); // Clear uploaded files after success
-      } else {
-        console.error("Upload failed");
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-    }
-  };
-  
-  const mergeFiles = async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload/merge`, {
         method: "POST",
+        body: formData,
       });
   
       const data = await response.json();
   
       if (response.ok) {
         alert("PDFs merged successfully!");
+        setFiles([]);
         window.open(data.mergedFile, "_blank");
       } else {
         console.error("Merge failed:", data.error);
@@ -205,15 +218,24 @@ const Upload = () => {
   };
   
   const compressFile = async () => {
+    if (files.length === 0) {
+      alert("No files selected!");
+      return;
+    }
+  
+    const formData = new FormData();
+    files.forEach(file => formData.append("files", file));
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload/compress`, {
         method: "POST",
+        body: formData,
       });
   
       const data = await response.json();
   
       if (response.ok) {
         alert("PDF compressed successfully!");
+        setFiles([]);
         window.open(data.compressedFile, "_blank");
       } else {
         console.error("Compression failed:", data.error);
@@ -238,10 +260,11 @@ const Upload = () => {
           </FileUploadBox>
 
           {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
-
-          <UploadButton onClick={uploadFiles}>Upload</UploadButton>
-          <UploadButton onClick={mergeFiles}>Merge PDFs</UploadButton>
-          <UploadButton onClick={compressFile}>Compress PDF</UploadButton>
+          <ButtonContainer>
+            {/* <UploadButton onClick={uploadFiles}>Upload</UploadButton> */}
+            <UploadButton onClick={mergeFiles}>Merge PDFs</UploadButton>
+            <UploadButton onClick={compressFile}>Compress PDF</UploadButton>
+          </ButtonContainer>
         </FileUploadContainer>
 
         {files.length > 0 && (
