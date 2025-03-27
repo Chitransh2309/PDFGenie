@@ -194,7 +194,7 @@ router.post("/flatten", upload.array("files", 10), async (req, res) => {
     // Extract URLs
     const fileUrls = uploadedFiles.map(file => file.fileUrl);
 
-    const result = await ConvertAPI.convert("redact", { File: fileUrls[0]}, "pdf");
+    const result = await ConvertAPI.convert("flatten", { File: fileUrls[0]}, "pdf");
     const flattenFileUrl = result.file.url;
 
     // Download and Save redact File
