@@ -4,7 +4,7 @@ const path = require("path");
 const File = require("../models/File");
 const router = express.Router();
 const fs = require("fs");
-const ConvertAPI = require("convertapi")("secret_JDL3V9MsHsRoDUAR"); // Your ConvertAPI Key
+const ConvertAPI = require("convertapi")("secret_JDL3V9MsHsRoDUAR"); 
 
 // Storage Configuration
 const storage = multer.diskStorage({
@@ -34,16 +34,30 @@ router.post("/", upload.array("files", 10), async (req, res) => {
       return res.status(400).json({ error: "No files uploaded" });
     }
 
-    const uploadedFiles = req.files.map(file => ({
-      filename: file.filename,
-      fileType: file.mimetype,
-      fileUrl: `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
-    }));
+    // Store file details in MongoDB
+    const uploadedFiles = req.files.map(file => {
+      const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
+      return { filename: file.filename, fileType: file.mimetype, fileUrl };
+    });
 
+    // Save files to MongoDB
     await File.insertMany(uploadedFiles);
 
-    // Extract URLs
-    const fileUrls = uploadedFiles.map(file => file.fileUrl);
+    res.json({ message: "Files uploaded successfully", files: uploadedFiles });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/merge", async (req, res) => {
+  try {
+    const files = await File.find({ fileType: "application/pdf" });
+
+    if (files.length < 2) {
+      return res.status(400).json({ error: "At least two PDF files are required to merge." });
+    }
+
+    const fileUrls = files.map(file => file.fileUrl);
 
     // Merge PDFs using ConvertAPI
     const result = await ConvertAPI.convert("merge", { Files: fileUrls }, "pdf");
@@ -57,12 +71,18 @@ router.post("/", upload.array("files", 10), async (req, res) => {
     const buffer = await mergedFile.arrayBuffer();
     fs.writeFileSync(mergedFilePath, Buffer.from(buffer));
 
-    // Store merged file in database
+    // Store merged file in MongoDB
     const mergedFileDoc = await File.create({
       filename: mergedFilename,
       fileType: "application/pdf",
       fileUrl: `${req.protocol}://${req.get("host")}/uploads/${mergedFilename}`
     });
+
+    // Delete original files from MongoDB and server
+    for (const file of files) {
+      fs.unlinkSync(path.join(__dirname, "../uploads", file.filename));
+      await File.deleteOne({ _id: file._id });
+    }
 
     res.json({ message: "PDFs merged successfully", mergedFile: mergedFileDoc.fileUrl });
 
@@ -70,5 +90,42 @@ router.post("/", upload.array("files", 10), async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+
+router.post("/compress", async (req, res) => {
+  try {
+    const file = await File.findOne({ fileType: "application/pdf" });
+
+    if (!file) {
+      return res.status(400).json({ error: "No PDF file available for compression." });
+    }
+
+    const result = await ConvertAPI.convert("compress", { File: file.fileUrl }, "pdf");
+    const compressedFileUrl = result.file.url;
+
+    // Download and Save Compressed File
+    const compressedFilename = `compressed-${Date.now()}.pdf`;
+    const compressedFilePath = path.join(__dirname, "../uploads", compressedFilename);
+
+    const compressedFile = await fetch(compressedFileUrl);
+    const buffer = await compressedFile.arrayBuffer();
+    fs.writeFileSync(compressedFilePath, Buffer.from(buffer));
+
+    // Store compressed file in MongoDB
+    const compressedFileDoc = await File.create({
+      filename: compressedFilename,
+      fileType: "application/pdf",
+      fileUrl: `${req.protocol}://${req.get("host")}/uploads/${compressedFilename}`
+    });
+
+    res.json({ message: "PDF compressed successfully", compressedFile: compressedFileDoc.fileUrl });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
 
 module.exports = router;

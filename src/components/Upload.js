@@ -174,21 +174,55 @@ const Upload = () => {
         body: formData,
       });
   
-      const data = await response.json();
-  
       if (response.ok) {
-        alert("Files merged successfully!");
-        setFiles([]);
-        
-        // Open the merged file in a new tab
-        window.open(data.mergedFile, "_blank");
+        alert("Files uploaded successfully");
+        setFiles([]); // Clear uploaded files after success
       } else {
-        console.error("Upload failed:", data.error);
+        console.error("Upload failed");
       }
     } catch (error) {
       console.error("Upload error:", error);
     }
   };
+  
+  const mergeFiles = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload/merge`, {
+        method: "POST",
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        alert("PDFs merged successfully!");
+        window.open(data.mergedFile, "_blank");
+      } else {
+        console.error("Merge failed:", data.error);
+      }
+    } catch (error) {
+      console.error("Merge error:", error);
+    }
+  };
+  
+  const compressFile = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload/compress`, {
+        method: "POST",
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        alert("PDF compressed successfully!");
+        window.open(data.compressedFile, "_blank");
+      } else {
+        console.error("Compression failed:", data.error);
+      }
+    } catch (error) {
+      console.error("Compression error:", error);
+    }
+  };
+  
   
 
   return (
@@ -206,6 +240,8 @@ const Upload = () => {
           {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
 
           <UploadButton onClick={uploadFiles}>Upload</UploadButton>
+          <UploadButton onClick={mergeFiles}>Merge PDFs</UploadButton>
+          <UploadButton onClick={compressFile}>Compress PDF</UploadButton>
         </FileUploadContainer>
 
         {files.length > 0 && (
