@@ -170,7 +170,7 @@ router.post("/redact", upload.array("files", 10), async (req, res) => {
       fileUrl: `${req.protocol}://${req.get("host")}/uploads/${redactFilename}`
     });
 
-    res.json({ message: "PDF compressed successfully", redactFile: redactFileDoc.fileUrl });
+    res.json({ message: "PDF redacted successfully", redactFile: redactFileDoc.fileUrl });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
