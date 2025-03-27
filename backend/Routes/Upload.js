@@ -177,5 +177,48 @@ router.post("/redact", upload.array("files", 10), async (req, res) => {
   }
 });
 
+router.post("/flatten", upload.array("files", 10), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded" });
+    }
+
+    const uploadedFiles = req.files.map(file => ({
+      filename: file.filename,
+      fileType: file.mimetype,
+      fileUrl: `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
+    }));
+
+    await File.insertMany(uploadedFiles);
+
+    // Extract URLs
+    const fileUrls = uploadedFiles.map(file => file.fileUrl);
+
+    const result = await ConvertAPI.convert("redact", { File: fileUrls[0]}, "pdf");
+    const flattenFileUrl = result.file.url;
+
+    // Download and Save redact File
+    const flattenFilename = `flatten-${Date.now()}.pdf`;
+    const flattenFilePath = path.join(__dirname, "../uploads", flattenFilename);
+
+    const flattenFile = await fetch(flattenFileUrl);
+    const buffer = await flattenFile.arrayBuffer();
+    fs.writeFileSync(flattenFilePath, Buffer.from(buffer));
+
+    // Store redact file in MongoDB
+    const flattenFileDoc = await File.create({
+      filename: flattenFilename,
+      fileType: "application/pdf",
+      fileUrl: `${req.protocol}://${req.get("host")}/uploads/${flattenFilename}`
+    });
+
+    res.json({ message: "PDF flattened successfully", flattenFile: flattenFileDoc.fileUrl });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 module.exports = router;

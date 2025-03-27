@@ -274,6 +274,33 @@ const Upload = () => {
     }
   };
   
+  const flattenFile = async () => {
+    if (files.length === 0) {
+      alert("No files selected!");
+      return;
+    }
+  
+    const formData = new FormData();
+    files.forEach(file => formData.append("files", file));
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload/flatten`, {
+        method: "POST",
+        body: formData,
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        alert("PDF flattened successfully!");
+        setFiles([]);
+        window.open(data.flattenFile, "_blank");
+      } else {
+        console.error("flatten failed:", data.error);
+      }
+    } catch (error) {
+      console.error("flatten error:", error);
+    }
+  };
 
   return (
     <Container>
@@ -293,6 +320,7 @@ const Upload = () => {
             <UploadButton onClick={mergeFiles}>Merge PDFs</UploadButton>
             <UploadButton onClick={compressFile}>Compress PDF</UploadButton>
             <UploadButton onClick={redactFile}>Redact PDF</UploadButton>
+            <UploadButton onClick={flattenFile}>Flatten PDF</UploadButton>
           </ButtonContainer>
         </FileUploadContainer>
 
