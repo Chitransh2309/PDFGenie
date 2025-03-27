@@ -51,11 +51,6 @@ router.post("/", upload.array("files", 10), async (req, res) => {
 
     // Download and Save Merged File
     const mergedFilename = `merged-${Date.now()}.pdf`;
-    const mergedFilePath = path.join(__dirname, "../uploads", mergedFilename);
-
-    const mergedFile = await fetch(mergedFileUrl);
-    const buffer = await mergedFile.arrayBuffer();
-    fs.writeFileSync(mergedFilePath, Buffer.from(buffer));
 
     // Store merged file in database
     const mergedFileDoc = await File.create({
@@ -64,11 +59,6 @@ router.post("/", upload.array("files", 10), async (req, res) => {
       fileUrl: `${req.protocol}://${req.get("host")}/uploads/${mergedFilename}`
     });
 
-    // Delete original files from server and database
-    for (const file of uploadedFiles) {
-      fs.unlinkSync(path.join(__dirname, "../uploads", file.filename));
-      await File.deleteOne({ _id: file._id });
-    }
 
     res.json({ message: "PDFs merged successfully", mergedFile: mergedFileDoc.fileUrl });
 
