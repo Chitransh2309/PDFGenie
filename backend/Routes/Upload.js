@@ -110,7 +110,7 @@ router.post("/compress", upload.array("files", 10), async (req, res) => {
     // Extract URLs
     const fileUrls = uploadedFiles.map(file => file.fileUrl);
 
-    const result = await ConvertAPI.convert("compress", { File: fileUrls }, "pdf");
+    const result = await ConvertAPI.convert("compress", { File: fileUrls[0] }, "pdf");
     const compressedFileUrl = result.file.url;
 
     // Download and Save Compressed File
