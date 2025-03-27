@@ -135,7 +135,47 @@ router.post("/compress", upload.array("files", 10), async (req, res) => {
   }
 });
 
+router.post("/redact", upload.array("files", 10), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded" });
+    }
 
+    const uploadedFiles = req.files.map(file => ({
+      filename: file.filename,
+      fileType: file.mimetype,
+      fileUrl: `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
+    }));
+
+    await File.insertMany(uploadedFiles);
+
+    // Extract URLs
+    const fileUrls = uploadedFiles.map(file => file.fileUrl);
+
+    const result = await ConvertAPI.convert("redact", { File: fileUrls[0]}, "pdf");
+    const redactFileUrl = result.file.url;
+
+    // Download and Save redact File
+    const redactFilename = `redact-${Date.now()}.pdf`;
+    const redactFilePath = path.join(__dirname, "../uploads", redactFilename);
+
+    const redactFile = await fetch(redactFileUrl);
+    const buffer = await redactFile.arrayBuffer();
+    fs.writeFileSync(redactFilePath, Buffer.from(buffer));
+
+    // Store redact file in MongoDB
+    const redactFileDoc = await File.create({
+      filename: redactFilename,
+      fileType: "application/pdf",
+      fileUrl: `${req.protocol}://${req.get("host")}/uploads/${redactFilename}`
+    });
+
+    res.json({ message: "PDF compressed successfully", redactFile: redactFileDoc.fileUrl });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 
 module.exports = router;

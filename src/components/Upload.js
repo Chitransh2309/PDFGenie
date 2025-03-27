@@ -245,6 +245,33 @@ const Upload = () => {
     }
   };
   
+  const redactFile = async () => {
+    if (files.length === 0) {
+      alert("No files selected!");
+      return;
+    }
+  
+    const formData = new FormData();
+    files.forEach(file => formData.append("files", file));
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload/redact`, {
+        method: "POST",
+        body: formData,
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        alert("PDF redacted successfully!");
+        setFiles([]);
+        window.open(data.redactFile, "_blank");
+      } else {
+        console.error("Redact failed:", data.error);
+      }
+    } catch (error) {
+      console.error("Redact error:", error);
+    }
+  };
   
 
   return (
@@ -264,6 +291,7 @@ const Upload = () => {
             {/* <UploadButton onClick={uploadFiles}>Upload</UploadButton> */}
             <UploadButton onClick={mergeFiles}>Merge PDFs</UploadButton>
             <UploadButton onClick={compressFile}>Compress PDF</UploadButton>
+            <UploadButton onClick={redactFile}>Redact PDF</UploadButton>
           </ButtonContainer>
         </FileUploadContainer>
 
