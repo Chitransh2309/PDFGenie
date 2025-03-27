@@ -111,8 +111,9 @@ const ZipFileIcon = styled(Archive)`
   color: #ff9800;
 `;
 const ButtonContainer = styled.div`
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   gap: 10px;
   `;
 const UploadButton = styled.button`
