@@ -8,7 +8,7 @@ export class About extends Component {
         <div className="container">
           <div className="box">
             <div>
-              <p className='my-1 mx-3'>At AIQ+, we believe that managing PDFs should be quick, easy, and hassle-free. Our platform is designed to help you merge multiple PDF files into a single, organized document in just a few clicks. Whether you're a student compiling research papers, a professional handling reports, or simply organizing personal documents, AIQ+ offers a smooth and efficient solution to simplify your workflow. What sets AIQ+ apart is our commitment to providing a secure and user-friendly experience. There's no need to worry about complex processes or hidden fees — we keep things simple. With no sign-ups required, you can instantly merge your PDFs and get back to what matters most.</p>
+              <p className='my-1 mx-3'>At AIQ+, we are dedicated to making PDF management smarter, faster, and more intuitive. Our platform is built to handle a variety of PDF tasks effortlessly, ensuring that you can modify your documents with precision and ease. Whether you're compressing files to save space, redacting sensitive information, or flattening PDFs for security, AIQ+ streamlines the process to keep your workflow smooth and efficient. What makes AIQ+ stand out is our focus on simplicity, security, and accessibility. There are no hidden fees or complicated steps—just a seamless experience designed for everyone. With no sign-ups required, you can instantly edit, optimize, and protect your PDFs, so you can focus on what truly matters.</p>
             </div>
           </div>
         </div>
