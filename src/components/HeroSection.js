@@ -6,7 +6,7 @@ const Herosection = () => {
   return (
     <div id="heroSec">
       {/* <Button/> */}
-      <p className='my-5' id='herotext' style={{ marginLeft: 250}}> <br /> Seamlessly Merge <br /> Your PDFs — Fast, <br /> Free, and Secure!</p>
+      <p className='my-5' id='herotext' style={{ marginLeft: 250}}> <br />Smart, Simple, <br /> and Seamless PDF Management at <br /> Your Fingertips!</p>
       <Button1/>
     </div>
   );
