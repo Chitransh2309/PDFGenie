@@ -4,7 +4,7 @@ const path = require("path");
 const File = require("../models/File");
 const router = express.Router();
 const fs = require("fs");
-const ConvertAPI = require("convertapi")("secret_Ek03X7DBTVjjjcMS"); 
+const ConvertAPI = require("convertapi")("0yPTP8QxcWSc4F2ybGbkmNknUdfgoFsc"); 
 
 // Storage Configuration
 const storage = multer.diskStorage({
