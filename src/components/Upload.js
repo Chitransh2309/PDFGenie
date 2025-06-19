@@ -319,9 +319,8 @@ const Upload = () => {
 
   return (
     <Container>
-      <Heading>Upload Files</Heading>
-
       {loading && <Loader />}
+      <Heading>Upload Files</Heading>
       <ContentWrapper>
         <FileUploadContainer>
           <FileUploadBox {...getRootProps()} className={isDragActive ? "dragover" : ""}>
