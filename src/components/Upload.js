@@ -221,7 +221,7 @@ const Upload = () => {
       console.error("Merge error:", error);
     } finally {
       setLoading(false);
-  }
+    }
   };
   
   const compressFile = async () => {
@@ -233,6 +233,7 @@ const Upload = () => {
     const formData = new FormData();
     files.forEach(file => formData.append("files", file));
     try {
+      setLoading(true);
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload/compress`, {
         method: "POST",
         body: formData,
@@ -249,6 +250,8 @@ const Upload = () => {
       }
     } catch (error) {
       console.error("Compression error:", error);
+    }finally {
+      setLoading(false);
     }
   };
   
@@ -261,6 +264,7 @@ const Upload = () => {
     const formData = new FormData();
     files.forEach(file => formData.append("files", file));
     try {
+      setLoading(true);
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload/redact`, {
         method: "POST",
         body: formData,
@@ -277,6 +281,8 @@ const Upload = () => {
       }
     } catch (error) {
       console.error("Redact error:", error);
+    }finally {
+      setLoading(false);
     }
   };
   
@@ -289,6 +295,7 @@ const Upload = () => {
     const formData = new FormData();
     files.forEach(file => formData.append("files", file));
     try {
+      setLoading(true);
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload/flatten`, {
         method: "POST",
         body: formData,
@@ -305,6 +312,8 @@ const Upload = () => {
       }
     } catch (error) {
       console.error("flatten error:", error);
+    }finally {
+      setLoading(false);
     }
   };
 

@@ -37,7 +37,7 @@ const StyledWrapper = styled.div`
 
   .loadingspinner div {
     display: inline-block;
-    background: linear-gradient(135deg, #ff00cc, #3333ff);
+    background: linear-gradient(135deg,rgb(107, 37, 93),rgb(32, 32, 156));
       /*background: var(--text-color);*/
       /*box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);*/
     border: none;
