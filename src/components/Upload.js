@@ -319,10 +319,10 @@ const Upload = () => {
 
   return (
     <Container>
-      {loading && <Loader />}
       <Heading>Upload Files</Heading>
 
       <ContentWrapper>
+        {loading && <Loader />}
         <FileUploadContainer>
           <FileUploadBox {...getRootProps()} className={isDragActive ? "dragover" : ""}>
             <input {...getInputProps()} />
