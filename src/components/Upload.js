@@ -3,6 +3,8 @@ import { useDropzone } from "react-dropzone";
 import styled from "styled-components";
 import { X, FileText, Archive } from "lucide-react"; // Importing File Icons
 import Footer from "./Footer";
+import Loader from "./Loader";
+
 
 const Container = styled.div`
   display: flex;
@@ -135,6 +137,7 @@ const UploadButton = styled.button`
 const Upload = () => {
   const [files, setFiles] = useState([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
     if (rejectedFiles.length > 0) {
@@ -199,6 +202,7 @@ const Upload = () => {
     const formData = new FormData();
     files.forEach(file => formData.append("files", file));
     try {
+      setLoading(true);
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/upload/merge`, {
         method: "POST",
         body: formData,
@@ -215,7 +219,9 @@ const Upload = () => {
       }
     } catch (error) {
       console.error("Merge error:", error);
-    }
+    } finally {
+      setLoading(false);
+  }
   };
   
   const compressFile = async () => {
@@ -304,6 +310,7 @@ const Upload = () => {
 
   return (
     <Container>
+      {loading && <Loader />}
       <Heading>Upload Files</Heading>
 
       <ContentWrapper>
